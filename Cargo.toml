@@ -12,14 +12,14 @@ repository = "https://github.com/sdleffler/rad-rs/"
 version = "0.5.0"
 
 [dependencies]
-ceph = "0.4.2"
-chrono = "0.4.0"
-error-chain = "0.11.0"
-ffi-pool = "0.1.1"
-futures = "0.1.16"
-lazy_static = "0.2.8"
-libc = "0.2.23"
-stable_deref_trait = "1.0.0"
+ceph = "2.0"
+chrono = "0.4"
+error-chain = "0.11"
+ffi-pool = "0.1"
+futures = "0.1"
+lazy_static = "1.2"
+libc = "0.2"
+stable_deref_trait = "1.1"
 
 [dev-dependencies]
 rand = "0.3.16"
