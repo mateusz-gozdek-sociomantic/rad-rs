@@ -31,7 +31,7 @@ use ceph::rados::{self, rados_completion_t, rados_ioctx_t, rados_t, Struct_rados
 use chrono::{DateTime, Local, TimeZone};
 use ffi_pool::CStringPool;
 use futures::prelude::*;
-use libc;
+use libc::c_char;
 use stable_deref_trait::StableDeref;
 
 use async::Completion;
@@ -92,6 +92,25 @@ impl ConnectionBuilder {
         })?;
 
         Ok(self)
+    }
+
+    pub fn conf_get(&self, option: &str) -> Result<String> {
+        let option_cstr = POOL.get_str(option)?;
+        let mut buffer: Vec<u8> = Vec::with_capacity(5120);
+
+        errors::librados(unsafe {
+            rados::rados_conf_get(self.handle, option_cstr.as_ptr(), buffer.as_mut_ptr() as *mut c_char, buffer.capacity())
+        })?;
+
+        unsafe {
+            // Ceph doesn't return how many bytes were written
+            buffer.set_len(5120);
+            // We need to search for the first NUL byte
+            let num_bytes = buffer.iter().position(|x| x == &0u8);
+            buffer.set_len(num_bytes.unwrap_or(0));
+        }
+
+        Ok(String::from_utf8_lossy(&buffer).into_owned())
     }
 
     /// Finish building the connection configuration and connect to the cluster.
