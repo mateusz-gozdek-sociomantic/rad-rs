@@ -750,6 +750,16 @@ impl Context {
         errors::librados(unsafe { rados::rados_aio_flush(self.handle) })
     }
 
+    pub fn set_locator(&mut self, locator: &str) -> Result<()> {
+        let locator_key = POOL.get_str(locator)?;
+
+        unsafe { rados::rados_ioctx_locator_set_key(self.handle, locator_key.as_ptr()) };
+
+        mem::drop(locator_key);
+
+        Ok(())
+    }
+
     /// Construct a future which will complete when all I/O actions on the given context are
     /// complete.
     pub fn flush_async(&mut self) -> UnitFuture {
