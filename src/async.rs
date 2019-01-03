@@ -124,8 +124,10 @@ impl<T> Future for Completion<T> {
 
 impl<T> Drop for Completion<T> {
     fn drop(&mut self) {
-        unsafe {
-            rados::rados_aio_release(self.handle);
+        if !self.handle.is_null() {
+            unsafe {
+                rados::rados_aio_release(self.handle);
+            }
         }
     }
 }
