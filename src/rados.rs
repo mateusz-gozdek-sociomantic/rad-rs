@@ -152,8 +152,10 @@ struct ClusterHandle {
 
 impl Drop for ClusterHandle {
     fn drop(&mut self) {
-        unsafe {
-            rados::rados_shutdown(self.handle);
+        if !self.handle.is_null() {
+            unsafe {
+                rados::rados_shutdown(self.handle);
+            }
         }
     }
 }
@@ -400,8 +402,10 @@ unsafe impl Send for Context {}
 
 impl Drop for Context {
     fn drop(&mut self) {
-        unsafe {
-            rados::rados_ioctx_destroy(self.handle);
+        if !self.handle.is_null() {
+            unsafe {
+                rados::rados_ioctx_destroy(self.handle);
+            }
         }
     }
 }
