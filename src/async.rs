@@ -49,7 +49,7 @@ extern "C" fn callback<T>(_handle: rados_completion_t, info_ptr: *mut libc::c_vo
 pub struct Completion<T> {
     task: Arc<AtomicTask>,
     data: Option<Arc<T>>,
-    handle: rados_completion_t,
+    pub handle: rados_completion_t,
 }
 
 impl<T> Completion<T> {

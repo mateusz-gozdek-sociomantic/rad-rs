@@ -792,4 +792,11 @@ impl Context {
             })
         })
     }
+
+    pub fn cancel_exists_async(&mut self, future: ExistsFuture) -> Result<()> {
+        match future.unit_future.completion_res {
+            Ok(completion) => errors::librados(unsafe { rados::rados_aio_cancel(self.handle, completion.handle) }),
+            Err(_)         => Ok(()),
+        }
+    }
 }
