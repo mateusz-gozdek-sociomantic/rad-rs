@@ -799,4 +799,21 @@ impl Context {
             Err(_)         => Ok(()),
         }
     }
+
+    pub fn cancel_stat_async(&mut self, future: StatFuture) -> Result<()> {
+        match future.data_future.completion_res {
+            Ok(completion) => errors::librados(unsafe { rados::rados_aio_cancel(self.handle, completion.handle) }),
+            Err(_)         => Ok(()),
+        }
+    }
+
+    pub fn cancel_read_async<B>(&mut self, future: ReadFuture<B>) -> Result<()>
+    where
+          B: StableDeref + DerefMut<Target = [u8]>,
+    {
+        match future.completion_res {
+            Ok(completion) => errors::librados(unsafe { rados::rados_aio_cancel(self.handle, completion.handle) }),
+            Err(_)         => Ok(()),
+        }
+    }
 }
