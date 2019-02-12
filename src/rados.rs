@@ -238,7 +238,7 @@ impl Connection {
 /// The type of a RADOS AIO operation which has yet to complete.
 #[derive(Debug)]
 pub struct UnitFuture {
-    completion_res: StdResult<Completion<()>, Option<Error>>,
+    pub completion_res: StdResult<Completion<()>, Option<Error>>,
 }
 
 impl UnitFuture {
@@ -266,7 +266,7 @@ impl Future for UnitFuture {
 
 #[derive(Debug)]
 pub struct DataFuture<T> {
-    completion_res: StdResult<Completion<T>, Option<Error>>,
+    pub completion_res: StdResult<Completion<T>, Option<Error>>,
 }
 
 impl<T> DataFuture<T> {
@@ -297,7 +297,7 @@ pub struct ReadFuture<B>
 where
     B: StableDeref + DerefMut<Target = [u8]>,
 {
-    completion_res: StdResult<Completion<B>, Option<Error>>,
+    pub completion_res: StdResult<Completion<B>, Option<Error>>,
 }
 
 impl<B> ReadFuture<B>
@@ -333,7 +333,7 @@ where
 
 #[derive(Debug)]
 pub struct StatFuture {
-    data_future: DataFuture<Box<(u64, libc::time_t)>>,
+    pub data_future: DataFuture<Box<(u64, libc::time_t)>>,
 }
 
 impl Future for StatFuture {
@@ -356,7 +356,7 @@ impl Future for StatFuture {
 
 #[derive(Debug)]
 pub struct ExistsFuture {
-    unit_future: UnitFuture,
+    pub unit_future: UnitFuture,
 }
 
 impl Future for ExistsFuture {
@@ -793,25 +793,25 @@ impl Context {
         })
     }
 
-    pub fn cancel_exists_async(&mut self, future: ExistsFuture) -> Result<()> {
-        match future.unit_future.completion_res {
+    pub fn cancel_exists_async(&mut self, completion: &StdResult<Completion<()>, Option<Error>>) -> Result<()> {
+        match completion {
             Ok(completion) => errors::librados(unsafe { rados::rados_aio_cancel(self.handle, completion.handle) }),
             Err(_)         => Ok(()),
         }
     }
 
-    pub fn cancel_stat_async(&mut self, future: StatFuture) -> Result<()> {
-        match future.data_future.completion_res {
+    pub fn cancel_stat_async(&mut self, completion: &StdResult<Completion<Box<(u64, libc::time_t)>>, Option<Error>>) -> Result<()> {
+        match completion {
             Ok(completion) => errors::librados(unsafe { rados::rados_aio_cancel(self.handle, completion.handle) }),
             Err(_)         => Ok(()),
         }
     }
 
-    pub fn cancel_read_async<B>(&mut self, future: ReadFuture<B>) -> Result<()>
+    pub fn cancel_read_async<B>(&mut self, completion: &StdResult<Completion<B>, Option<Error>>) -> Result<()>
     where
           B: StableDeref + DerefMut<Target = [u8]>,
     {
-        match future.completion_res {
+        match completion {
             Ok(completion) => errors::librados(unsafe { rados::rados_aio_cancel(self.handle, completion.handle) }),
             Err(_)         => Ok(()),
         }
