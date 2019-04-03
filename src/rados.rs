@@ -233,6 +233,24 @@ impl Connection {
             handle: ioctx_handle,
         })
     }
+
+    /// Register daemon instance for a service
+    pub fn service_register(self, service: &str, daemon: &str, metadata_dict: &str) -> Result<Connection> {
+        let service_cstr = POOL.get_str(service)?;
+        let daemon_cstr = POOL.get_str(daemon)?;
+        let metadata_dict_cstr = POOL.get_str(metadata_dict)?;
+
+        errors::librados(unsafe {
+            rados::rados_service_register(
+                self.conn.handle,
+                service_cstr.as_ptr(),
+                daemon_cstr.as_ptr(),
+                metadata_dict_cstr.as_ptr(),
+            )
+        })?;
+
+        Ok(self)
+    }
 }
 
 /// The type of a RADOS AIO operation which has yet to complete.
